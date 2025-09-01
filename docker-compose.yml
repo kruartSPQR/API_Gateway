@@ -75,8 +75,7 @@ services:
     restart: unless-stopped
 
   app4:
-    build: .
-    image: api-gateway:latest
+    image: ghcr.io/kruartspqr/apigateway_docker_image:latest
     environment:
       - SPRING_PROFILES_ACTIVE=prod
     depends_on:
