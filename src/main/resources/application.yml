@@ -34,6 +34,7 @@ logging:
 userServiceAddress: http://localhost:8081
 authServiceAddress: http://localhost:8082
 orderServiceAddress: http://localhost:8083
+paymentServiceAddress: http://localhost:8084
 
 ---
 spring:
@@ -45,3 +46,4 @@ server:
 userServiceAddress: http://app1:8081
 authServiceAddress: http://app2:8082
 orderServiceAddress: http://app3:8083
+paymentServiceAddress: http://app4:8084

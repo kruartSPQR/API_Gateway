@@ -18,6 +18,9 @@ public class RouteConfig {
     @Value("${orderServiceAddress}")
     private String orderServiceAddress;
 
+    @Value("${paymentServiceAddress}")
+    private String paymentServiceAddress;
+
     @Bean
     public RouteLocator customRoutes(RouteLocatorBuilder builder) {
         return builder.routes()
@@ -30,6 +33,9 @@ public class RouteConfig {
                 .route("orderServiceRoute", r -> r
                         .path("/api/v1/orders/**")
                         .uri(orderServiceAddress))
+                .route("paymentServiceRoute", r -> r
+                        .path("/api/v1/payments/**")
+                        .uri(paymentServiceAddress))
                 .build();
     }
 }

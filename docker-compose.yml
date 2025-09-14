@@ -29,6 +29,16 @@ services:
       - '127.0.0.1:5444:5432'
     volumes:
       - postgres-data_orderSvc:/var/lib/postgresql/data
+  db4:
+    image: mongo
+    environment:
+      MONGO_INITDB_DATABASE: payment_service_db
+      MONGO_INITDB_ROOT_USERNAME: mongoUser
+      MONGO_INITDB_ROOT_PASSWORD: mongoPassword
+    ports:
+    - '127.0.0.1:27017:27017'
+    volumes:
+      - mongo-data_paymentSvc:/data/db
   redis:
     image: redis:7
     ports:
@@ -75,6 +85,21 @@ services:
     restart: unless-stopped
 
   app4:
+    image: ghcr.io/kruartspqr/paymentservice_docker_image:latest
+    depends_on:
+      - db4
+    environment:
+      SPRING_DATA_MONGODB_HOST: db4
+      SPRING_DATA_MONGODB_PORT: 27017
+      SPRING_DATA_MONGODB_DATABASE: payment_service_db
+      SPRING_DATA_MONGODB_USERNAME: mongoUser
+      SPRING_DATA_MONGODB_PASSWORD: mongoPassword
+
+    ports:
+      - '8084:8084'
+
+    restart: unless-stopped
+  app5:
     image: ghcr.io/kruartspqr/apigateway_docker_image:latest
     environment:
       - SPRING_PROFILES_ACTIVE=prod
@@ -82,11 +107,33 @@ services:
       - app1
       - app2
       - app3
+      - app4
 
     ports:
       - '8080:8080'
 
     restart: unless-stopped
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    depends_on:
+      - zookeeper
+      - app5
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
 
 volumes:
   postgres-data_userSvc:
