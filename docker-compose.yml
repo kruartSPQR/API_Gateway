@@ -139,3 +139,4 @@ volumes:
   postgres-data_userSvc:
   postgres-data_authSvc:
   postgres-data_orderSvc:
+  mongo-data_paymentSvc:
