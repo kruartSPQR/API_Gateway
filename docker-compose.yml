@@ -30,7 +30,7 @@ services:
     volumes:
       - postgres-data_orderSvc:/var/lib/postgresql/data
   db4:
-    image: mongo
+    image: mongo:latest
     environment:
       MONGO_INITDB_DATABASE: payment_service_db
       MONGO_INITDB_ROOT_USERNAME: mongoUser
