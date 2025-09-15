@@ -75,10 +75,12 @@ services:
     image: ghcr.io/kruartspqr/orderservice_docker_image:latest
     depends_on:
       - db3
+      - kafka
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db3:5432/order_service_db
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
 
     ports:
       - '8083:8083'
@@ -88,12 +90,14 @@ services:
     image: ghcr.io/kruartspqr/paymentservice_docker_image:latest
     depends_on:
       - db4
+      - kafka
     environment:
       SPRING_DATA_MONGODB_HOST: db4
       SPRING_DATA_MONGODB_PORT: 27017
       SPRING_DATA_MONGODB_DATABASE: payment_service_db
       SPRING_DATA_MONGODB_USERNAME: mongoUser
       SPRING_DATA_MONGODB_PASSWORD: mongoPassword
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
 
     ports:
       - '8084:8084'
