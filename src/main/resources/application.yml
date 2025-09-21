@@ -47,3 +47,13 @@ userServiceAddress: http://app1:8081
 authServiceAddress: http://app2:8082
 orderServiceAddress: http://app3:8083
 paymentServiceAddress: http://app4:8084
+  
+management:
+  endpoint:
+    health:
+      probes:
+        enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: health,info
