@@ -34,7 +34,6 @@ public class RegistrationControllerTest {
 
     @BeforeEach
     void setUp() throws IOException {
-
         userServiceServer = new MockWebServer();
         authServiceServer = new MockWebServer();
 
@@ -69,7 +68,7 @@ public class RegistrationControllerTest {
                 .bodyValue(dto)
                 .exchange()
                 .expectStatus().isCreated()
-                .expectBody().isEmpty();
+                .expectBody(String.class).isEqualTo("Registration successful"); // Исправлено
 
         assertThat(userServiceServer.getRequestCount()).isEqualTo(1);
         assertThat(authServiceServer.getRequestCount()).isEqualTo(1);
@@ -92,12 +91,12 @@ public class RegistrationControllerTest {
                 .bodyValue(dto)
                 .exchange()
                 .expectStatus().isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR)
-                .expectBody().isEmpty();
+                .expectBody(String.class).isEqualTo("Registration failed"); // Исправлено
 
         assertThat(userServiceServer.getRequestCount()).isEqualTo(2);
         assertThat(authServiceServer.getRequestCount()).isEqualTo(1);
 
-         userServiceServer.takeRequest(); //first post request
+        userServiceServer.takeRequest(); //first post request
         var rollbackRequest = userServiceServer.takeRequest();
         assertThat(rollbackRequest.getMethod()).isEqualTo("DELETE");
         assertThat(rollbackRequest.getPath()).isEqualTo("/api/v1/users/email/test%40example.com");
