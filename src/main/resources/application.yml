@@ -36,6 +36,16 @@ authServiceAddress: http://localhost:8082
 orderServiceAddress: http://localhost:8083
 paymentServiceAddress: http://localhost:8084
 
+management:
+  endpoint:
+    health:
+      probes:
+        enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
 ---
 spring:
   config:

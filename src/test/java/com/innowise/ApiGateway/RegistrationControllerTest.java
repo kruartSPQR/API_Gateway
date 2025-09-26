@@ -29,14 +29,17 @@ public class RegistrationControllerTest {
     private MockWebServer userServiceServer;
     private MockWebServer authServiceServer;
 
+    private Integer userServicePort = 8081;
+    private Integer authServicePort = 8082;
+
     @BeforeEach
     void setUp() throws IOException {
 
         userServiceServer = new MockWebServer();
         authServiceServer = new MockWebServer();
 
-        userServiceServer.start(8081); // Фиксированный порт для UserService
-        authServiceServer.start(8082); // Фиксированный порт для AuthService
+        userServiceServer.start(userServicePort);
+        authServiceServer.start(authServicePort);
     }
 
     @AfterEach

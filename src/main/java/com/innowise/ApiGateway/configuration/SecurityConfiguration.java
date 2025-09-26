@@ -23,7 +23,7 @@ public class SecurityConfiguration {
                 .headers(h -> h.frameOptions(ServerHttpSecurity.HeaderSpec.FrameOptionsSpec::disable))
                 .authorizeExchange(ex -> ex
 
-                        .pathMatchers("/api/v1/auth/**")
+                        .pathMatchers("/api/v1/auth/**", "actuator/health/**")
                         .permitAll()
                         .anyExchange().authenticated()
                 )
