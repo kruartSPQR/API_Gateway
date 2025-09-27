@@ -1,0 +1,54 @@
+{{- if .Values.app2.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    io.kompose.service: app2
+  name: app2
+  namespace: {{ .Values.global.namespace | quote }}
+spec:
+  replicas: {{ .Values.app2.replicaCount }}
+  selector:
+    matchLabels:
+      io.kompose.service: app2
+  template:
+    metadata:
+      labels:
+        io.kompose.service: app2
+    spec:
+      containers:
+        - env:
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secrets
+                  key: datasource-password
+            - name: SPRING_DATASOURCE_URL
+              value: "jdbc:postgresql://{{ .Values.db2.host }}:5432/{{ .Values.db2.database }}"
+            - name: SPRING_DATASOURCE_USERNAME
+              value: {{ .Values.db2.username | quote }}
+          image: {{ .Values.app2.image  | quote }}
+          name: app2
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: {{ .Values.app2.port }}
+            initialDelaySeconds: 90
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: {{ .Values.app2.port }}
+            initialDelaySeconds: 30
+            periodSeconds: 15
+          startupProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: {{ .Values.app2.port }}
+            failureThreshold: 30
+            periodSeconds: 10
+          ports:
+            - containerPort: {{ .Values.app2.port }}
+              protocol: TCP
+      restartPolicy: Always
+{{- end }}

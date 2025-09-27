@@ -1,0 +1,129 @@
+global:
+  namespace: "my-app"
+
+redis:
+  enabled: true
+  name: "redis"
+  DNS_name: "my-app-redis-master"
+  architecture: "standalone"
+  auth:
+    enabled: false
+  master:
+    persistence:
+      enabled: true
+      size: "8Gi"
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "100m"
+      limits:
+        memory: "512Mi"
+        cpu: "500m"
+    service:
+      ports:
+        redis: 6379
+
+kafka:
+  enabled: true
+  Kraft:
+    enabled: true
+  name: "kafka"
+  DNS_name: "my-app-kafka"
+
+  auth:
+    clientProtocol: plaintext
+    interBrokerProtocol: plaintext
+    sasl:
+      enabled: false
+
+  listeners:
+    client:
+      protocol: PLAINTEXT
+
+  extraConfig: |
+    listener.security.protocol.map=PLAINTEXT:PLAINTEXT
+    listeners=PLAINTEXT://:9092
+    advertised.listeners=PLAINTEXT://${HOSTNAME}.my-app-kafka-headless.my-app.svc.cluster.local:9092
+
+  service:
+    ports:
+      client: 9092
+
+  zookeeper:
+    enabled: false
+
+db1:
+  enabled: true
+  database: "user_service_db"
+  host: "db1"
+  username: "postgres"
+  replicaCount: 1
+  storage: "5Gi"
+db2:
+  enabled: true
+  database: "auth_service_db"
+  host: "db2"
+  replicaCount: 1
+  username: "postgres"
+  storage: "5Gi"
+db3:
+  enabled: true
+  database: "order_service_db"
+  host: "db3"
+  replicaCount: 1
+  username: "postgres"
+  storage: "5Gi"
+
+db4:
+  enabled: true
+  database: "payment_service_db"
+  host: "db4"
+  replicaCount: 1
+  username: "mongoUser"
+  storage: "5Gi"
+
+app1:
+  enabled: true
+  replicaCount: 1
+  image: "ghcr.io/kruartspqr/userservice_docker_image:latest"
+  port: 8081
+app2:
+  enabled: true
+  replicaCount: 1
+  image: "ghcr.io/kruartspqr/authservice_docker_image:latest"
+  port: 8082
+app3:
+  enabled: true
+  replicaCount: 1
+  image: "ghcr.io/kruartspqr/orderservice_docker_image:latest"
+  port: 8083
+app4:
+  enabled: true
+  replicaCount: 1
+  image: "ghcr.io/kruartspqr/paymentservice_docker_image:latest"
+  port: 8084
+app5:
+  enabled: true
+  replicaCount: 1
+  image: "ghcr.io/kruartspqr/apigateway_docker_image:latest"
+  port: 8080
+  service:
+    port: 80
+  ingress:
+    enabled: true
+    className: "nginx"
+    hosts:
+      - host: "my-app.test"
+        paths:
+          - path: "/"
+            pathType: "Prefix"
+
+secrets:
+  postgres:
+    db1-password: "postgres"
+    db2-password: "postgres"
+    db3-password: "postgres"
+    datasource-password: "postgres"
+  mongo:
+    mongo-password: "mongoPassword"
+    mongo-username: "mongoUser"

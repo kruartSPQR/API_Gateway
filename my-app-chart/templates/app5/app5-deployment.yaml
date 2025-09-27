@@ -1,0 +1,48 @@
+{{- if .Values.app5.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    io.kompose.service: app5
+  name: app5
+  namespace: {{ .Values.global.namespace | quote }}
+spec:
+  replicas: {{ .Values.app5.replicaCount }}
+  selector:
+    matchLabels:
+      io.kompose.service: app5
+  template:
+    metadata:
+      labels:
+        io.kompose.service: app5
+    spec:
+      containers:
+        - env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: "prod"
+          image: {{ .Values.app5.image | quote }}
+          name: app5
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: {{ .Values.app5.port }}
+            initialDelaySeconds: 90
+            periodSeconds: 10
+          readinessProbe:
+              httpGet:
+                path: /actuator/health/readiness
+                port: {{ .Values.app5.port }}
+              initialDelaySeconds: 30
+              periodSeconds: 15
+          startupProbe:
+              httpGet:
+                path: /actuator/health/readiness
+                port: {{ .Values.app5.port }}
+              failureThreshold: 30
+              initialDelaySeconds: 60
+              periodSeconds: 10
+          ports:
+            - containerPort: {{ .Values.app5.port }}
+              protocol: TCP
+      restartPolicy: Always
+{{- end }}

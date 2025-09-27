@@ -1,0 +1,16 @@
+{{- if .Values.app4.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    io.kompose.service: app4
+  name: app4
+  namespace: {{ .Values.global.namespace | quote }}
+spec:
+  ports:
+    - name: "http"
+      port: 8084
+      targetPort: 8084
+  selector:
+    io.kompose.service: app4
+{{- end }}

@@ -1,0 +1,60 @@
+{{- if .Values.app4.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    io.kompose.service: app4
+  name: app4
+  namespace: {{ .Values.global.namespace | quote }}
+spec:
+  replicas: {{ .Values.app4.replicaCount }}
+  selector:
+    matchLabels:
+      io.kompose.service: app4
+  template:
+    metadata:
+      labels:
+        io.kompose.service: app4
+    spec:
+      containers:
+        - env:
+            - name: SPRING_DATA_MONGODB_DATABASE
+              value: payment_service_db
+            - name: SPRING_DATA_MONGODB_HOST
+              value: "db4"
+            - name: SPRING_DATA_MONGODB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mongo-secrets
+                  key: mongo-password
+            - name: SPRING_DATA_MONGODB_PORT
+              value: "27017"
+            - name: SPRING_DATA_MONGODB_USERNAME
+              value: mongoUser
+            - name: SPRING_KAFKA_BOOTSTRAP_SERVERS
+              value: "{{.Values.kafka.DNS_name}}:9092"
+          image: {{ .Values.app4.image | quote }}
+          name: app4
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: {{ .Values.app4.port }}
+            initialDelaySeconds: 120
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: {{ .Values.app4.port }}
+            initialDelaySeconds: 30
+            periodSeconds: 15
+          startupProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: {{ .Values.app4.port }}
+            failureThreshold: 30
+            periodSeconds: 10
+          ports:
+            - containerPort: {{ .Values.app4.port }}
+              protocol: TCP
+      restartPolicy: Always
+{{- end }}

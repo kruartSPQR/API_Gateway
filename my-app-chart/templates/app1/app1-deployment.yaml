@@ -1,0 +1,58 @@
+{{- if .Values.app1.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    io.kompose.service: app1
+  name: app1
+  namespace: {{ .Values.global.namespace | quote }}
+spec:
+  replicas: {{.Values.app1.replicaCount }}
+  selector:
+    matchLabels:
+      io.kompose.service: app1
+  template:
+    metadata:
+      labels:
+        io.kompose.service: app1
+    spec:
+      containers:
+        - env:
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secrets
+                  key: datasource-password
+            - name: SPRING_DATASOURCE_URL
+              value: "jdbc:postgresql://{{ .Values.db1.host }}:5432/{{ .Values.db1.database }}"
+            - name: SPRING_DATASOURCE_USERNAME
+              value: {{ .Values.db1.username | quote }}
+            - name: SPRING_DATA_REDIS_HOST
+              value: {{.Values.redis.DNS_name | quote}}
+            - name: SPRING_DATA_REDIS_PORT
+              value: "6379"
+          image: {{ .Values.app1.image | quote }}
+          name: app1
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: {{ .Values.app1.port }}
+            initialDelaySeconds: 90
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: {{ .Values.app1.port }}
+            initialDelaySeconds: 30
+            periodSeconds: 15
+          startupProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: {{ .Values.app1.port }}
+            failureThreshold: 30
+            periodSeconds: 10
+          ports:
+            - containerPort: {{.Values.app1.port}}
+              protocol: TCP
+      restartPolicy: Always
+{{- end }}

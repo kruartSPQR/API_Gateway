@@ -1,0 +1,69 @@
+{{- if .Values.db2.enabled }}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: db2-postgres
+  namespace: {{ .Values.global.namespace | quote }}
+  labels:
+    app: postgres
+    instance: db2
+spec:
+  serviceName: "db2"
+  replicas: {{.Values.db2.replicaCount}}
+  selector:
+    matchLabels:
+      app: postgres
+      instance: db2
+  template:
+    metadata:
+      labels:
+        app: postgres
+        instance: db2
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:16
+          ports:
+            - containerPort: 5432
+              name: postgres
+          env:
+            - name: POSTGRES_DB
+              value: {{ .Values.db2.database | quote }}
+            - name: POSTGRES_USER
+              value: {{ .Values.db2.username | quote }}
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secrets
+                  key: db2-password
+          livenessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - exec pg_isready -U postgres -h 127.0.0.1 -p 5432
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+          readinessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - exec pg_isready -U postgres -h 127.0.0.1 -p 5432
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 3
+          volumeMounts:
+            - name: postgres-data
+              mountPath: /var/lib/postgresql/data
+  volumeClaimTemplates:
+    - metadata:
+        name: postgres-data
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: {{ .Values.db2.storage | quote }}
+{{- end }}
