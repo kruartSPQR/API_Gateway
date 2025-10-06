@@ -53,7 +53,7 @@ spring:
       on-profile: prod
 server:
   port: 8080
-userServiceAddress: http://app1:8081
+userServiceAddress: http://userservice:8081
 authServiceAddress: http://app2:8082
 orderServiceAddress: http://app3:8083
 paymentServiceAddress: http://app4:8084
