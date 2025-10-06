@@ -54,9 +54,9 @@ spring:
 server:
   port: 8080
 userServiceAddress: http://userservice:8081
-authServiceAddress: http://app2:8082
-orderServiceAddress: http://app3:8083
-paymentServiceAddress: http://app4:8084
+authServiceAddress: http://authservice:8082
+orderServiceAddress: http://orderservice:8083
+paymentServiceAddress: http://paymentservice:8084
   
 management:
   endpoint:
